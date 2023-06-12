@@ -13,62 +13,39 @@ This is a chat application built with React and Redux. The goal of this project 
 
 ## File Structure
 
-.
-├── LICENSE
-├── README.md
-├── README.old.md
-├── package-lock.json
-├── package.json
-├── public
-│   ├── favicon.ico
-│   └── index.html
-└── src
-    ├── App.js
-    ├── actions
-    │   ├── authActions.js
-    │   ├── chatActions.js
-    │   ├── notificationActions.js
-    │   ├── roomActions.js
-    │   └── userActions.js
-    ├── components
-    │   ├── App
-    │   │   ├── App.css
-    │   │   └── App.js
-    │   ├── Authentication
-    │   │   ├── Login.js
-    │   │   ├── Logout.js
-    │   │   └── Register.js
-    │   ├── Chat
-    │   │   ├── Chat.css
-    │   │   └── Chat.js
-    │   ├── ChatRoom
-    │   │   ├── ChatRoom.css
-    │   │   └── Chatroom.js
-    │   ├── Message
-    │   │   ├── Message.css
-    │   │   └── Message.js
-    │   ├── Notifications
-    │   │   ├── Notifications.css
-    │   │   └── Notifications.js
-    │   ├── Profile
-    │   │   ├── Profile.css
-    │   │   └── Profile.js
-    │   ├── Reactions
-    │   │   └── Reactions.js
-    │   ├── User
-    │   │   ├── User.css
-    │   │   └── User.js
-    │   └── main.js
-    ├── index.js
-    ├── reducers
-    │   ├── authReducer.js
-    │   ├── chatReducer.js
-    │   ├── notificationReducer.js
-    │   ├── roomReducer.js
-    │   ├── rootReducer.js
-    │   └── userReducer.js
-    └── store
-        └── index.js
+/chat-app
+|-- /node_modules
+|-- /public
+|   |-- index.html
+|   |-- favicon.ico
+|-- /src
+|   |-- /actions
+|   |   |-- chatActions.js
+|   |   |-- userActions.js
+|   |-- /components
+|   |   |-- /Chat
+|   |   |   |-- Chat.js
+|   |   |   |-- Chat.css
+|   |   |-- /Message
+|   |   |   |-- Message.js
+|   |   |   |-- Message.css
+|   |   |-- /User
+|   |   |   |-- User.js
+|   |   |   |-- User.css
+|   |   |-- /App
+|   |   |   |-- App.js
+|   |   |   |-- App.css
+|   |-- /reducers
+|   |   |-- chatReducer.js
+|   |   |-- userReducer.js
+|   |   |-- rootReducer.js
+|   |-- /store
+|   |   |-- index.js
+|   |-- index.js
+|   |-- App.js
+|-- package.json
+|-- .gitignore
+
 
 ## Usage Instructions
 
