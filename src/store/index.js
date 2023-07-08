@@ -6,7 +6,7 @@ import io from 'socket.io-client';
 
 // Async action creator using createAsyncThunk
 export const initSocket = createAsyncThunk('INIT_SOCKET', async () => {
-  const socket = io('http://localhost:3001', { transports: ['websocket'] });
+  const socket = io('http://localhost:3002', { transports: ['websocket'] });
 
   // Perform any necessary initialization logic here
 

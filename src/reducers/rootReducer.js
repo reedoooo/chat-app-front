@@ -1,19 +1,18 @@
 // reducers/rootReducer.js
 import { combineReducers } from 'redux';
-import chatReducer from './chatReducer';
 import userReducer from './userReducer';
-
 import authReducer from './authReducer';
+import messageReducer from './messageReducer';
 
-import roomReducer from './roomReducer';
+// import roomReducer from './roomReducer';
 import notificationReducer from './notificationReducer';
+import chatReducer from './chatRoomReducer';
 
 const rootReducer = combineReducers({
-
-  chat: chatReducer,
+  messages: messageReducer,
   auth: authReducer,
+  chatRoom: chatReducer,
   user: userReducer,
-  room: roomReducer,
   notifications: notificationReducer,
 });
 
