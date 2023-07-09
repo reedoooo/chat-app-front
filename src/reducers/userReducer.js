@@ -1,49 +1,50 @@
+import {
+  USER_LOGGED_IN,
+  USER_REGISTERED,
+  USER_LOGGED_OUT,
+  USER_JOINED_ROOM,
+  USER_LEFT_ROOM,
+  USER_TYPING,
+  USER_STOPPED_TYPING,
+  USER_SENT_MESSAGE,
+  USER_READ_MESSAGE,
+} from '../actions/actionTypes';
+
 const initialState = {
   user: null,
-  rooms: {}, 
-  users: [], // Add this line to define the 'users' property
+  isAuthenticated: false,
 };
 
 const userReducer = (state = initialState, action) => {
   switch (action.type) {
-  case 'USER_JOINED':
-    return {
-      ...state,
-      rooms: {
-        ...state.rooms,
-        [action.payload.roomId]: [
-          ...(state.rooms[action.payload.roomId] || []),
-          { type: action.type, user: action.payload.userId },
-        ],
-      },
-    };
-  case 'USER_LEFT':
-    return {
-      ...state,
-      rooms: {
-        ...state.rooms,
-        [action.payload.roomId]: state.rooms[action.payload.roomId].filter(
-          user => user.user !== action.payload.userId,
-        ),
-      },
-    };
-    
-  case 'USER_LOGGED_IN':
-    return { ...state, user: action.payload };
-  case 'USER_LOGGED_OUT':
-    return { ...state, user: null };
-  case 'USER_REGISTERED':
-    return { ...state, user: action.payload }; // Assumes registration automatically logs in the user
+  case USER_LOGGED_IN:
+  case USER_REGISTERED:
+    return { ...state, user: action.payload, isAuthenticated: true };
 
-  case 'SET_USER_ONLINE_STATUS':
+  case USER_JOINED_ROOM:
+  case USER_LEFT_ROOM:
+    // Assuming action.payload has the roomId
+    return { ...state, user: { ...state.user, room: action.payload } };
+
+  case USER_TYPING:
+  case USER_STOPPED_TYPING:
+    // Assuming action.payload has the typing status
+    return { ...state, user: { ...state.user, typing: action.payload } };
+
+  case USER_SENT_MESSAGE:
+  case USER_READ_MESSAGE:
+    // Assuming action.payload has the message details
     return {
       ...state,
-      users: state.users.map((user) =>
-        user.id === action.payload.userId
-          ? { ...user, isOnline: action.payload.isOnline }
-          : user,
-      ),
+      user: {
+        ...state.user,
+        messages: [...state.user.messages, action.payload],
+      },
     };
+
+  case USER_LOGGED_OUT:
+    return { ...state, user: null, isAuthenticated: false };
+
   default:
     return state;
   }

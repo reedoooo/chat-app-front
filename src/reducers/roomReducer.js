@@ -1,39 +1,59 @@
-// reducers/roomReducer.js
+import { createSlice } from '@reduxjs/toolkit';
+import {
+  getChatRooms,
+  getChatRoom,
+  createChatRoom,
+  updateChatRoom,
+  deleteChatRoom,
+  addMessageToRoom,
+  loadRooms,
+} from '../actions/roomActions';
+
 const initialState = {
   rooms: [],
-  selectedRoom: null,
+  currentRoom: null,
+  messages: {},
 };
 
-const roomReducer = (state = initialState, action) => {
-  switch (action.type) {
-  case 'ROOM_CREATED':
-    return {
-      ...state,
-      rooms: [...state.rooms, action.payload],
-    };
-  case 'ROOM_DELETED':
-    return {
-      ...state,
-      rooms: state.rooms.filter(room => room.name !== action.payload),
-    };
-    
-  case 'ROOM_SELECTED':
-    return {
-      ...state,
-      selectedRoom: action.payload,
-    };
-  case 'SET_ROOM_DESCRIPTION':
-    return {
-      ...state,
-      rooms: state.rooms.map((room) =>
-        room.name === action.payload.roomName
-          ? { ...room, description: action.payload.description }
-          : room,
-      ),
-    };
-  default:
-    return state;
-  }
-};
+const roomSlice = createSlice({
+  name: 'rooms',
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(getChatRooms.fulfilled, (state, action) => {
+        state.rooms = action.payload;
+      })
+      .addCase(getChatRoom.fulfilled, (state, action) => {
+        state.currentRoom = action.payload;
+      })
+      .addCase(createChatRoom.fulfilled, (state, action) => {
+        state.rooms.push(action.payload);
+      })
+      .addCase(updateChatRoom.fulfilled, (state, action) => {
+        const updatedRoom = action.payload;
+        const roomIndex = state.rooms.findIndex(
+          (room) => room._id === updatedRoom._id,
+        );
+        if (roomIndex !== -1) {
+          state.rooms[roomIndex] = updatedRoom;
+        }
+      })
+      .addCase(deleteChatRoom.fulfilled, (state, action) => {
+        const roomId = action.payload;
+        state.rooms = state.rooms.filter((room) => room._id !== roomId);
+      })
+      .addCase(addMessageToRoom, (state, action) => {
+        const { roomId, message } = action.payload;
+        if (!state.messages[roomId]) {
+          state.messages[roomId] = [];
+        }
+        state.messages[roomId].push(message);
+      })
+      .addCase(loadRooms.fulfilled, (state, action) => {
+        state.rooms = action.payload;
+      });
+  },
+});
 
-export default roomReducer;
+export default roomSlice.reducer;

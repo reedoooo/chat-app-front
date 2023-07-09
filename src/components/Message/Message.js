@@ -1,5 +1,4 @@
 // components/Message/Message.js
-import React from 'react';
 import Reactions from '../Reactions/Reactions';
 
 const Message = ({ message }) => {
