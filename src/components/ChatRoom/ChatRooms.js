@@ -7,8 +7,9 @@ import {
   addNotification,
   sendMessage,
   loadRooms,
-  addUserToRoom,
-} from '../../actions/chatRoomActions';
+  receiveMessage,
+} from '../../actions/chatActions';
+
 import { debounce } from 'lodash';
 import io from 'socket.io-client';
 import Message from '../Message/Message';
@@ -25,10 +26,7 @@ import {
 } from '@chakra-ui/react';
 import { UserProvider } from '../../context/hooks/user';
 
-
-const ChatRoom = () => {
-  console.log('ChatRoom component render');
-
+const ChatRooms = () => {
   const dispatch = useDispatch();
   const rooms = useSelector((state) => state.rooms);
   const currentRoom = useSelector((state) => state.chatRoom.currentRoom);
@@ -38,23 +36,16 @@ const ChatRoom = () => {
   );
   const [selectedRoom, setSelectedRoom] = useState('');
   const [messageText, setMessageText] = useState('');
-  const [newRoom, setNewRoom] = useState(null);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const socketRef = useRef(); // Create a ref to store the socket instance
+  const socketRef = useRef();
 
   useEffect(() => {
-    console.log('First useEffect execution');
-    socketRef.current = io(); // Instantiate the socket.io client and store it in the ref
+    socketRef.current = io();
 
     socketRef.current.on('connect', () => {
       console.log('Connected to socket.io server');
-    });
-
-    socketRef.current.on('NEW_ROOM_CREATED', function (room) {
-      setNewRoom(room); // Update the state with the data about the new room
-      onOpen(); // Open the CreateRoom modal
     });
 
     dispatch(loadRooms());
@@ -64,16 +55,16 @@ const ChatRoom = () => {
       dispatch(addNotification(notification));
     });
 
-    socketRef.current.on('user.registered', function (user) {
-      dispatch(addUserToRoom(user));
-      onOpen(); // Open the CreateRoom modal
+    socketRef.current.on('RECEIVE_MESSAGE', function (message) {
+      console.log('New message received:', message);
+      dispatch(receiveMessage({ message, roomId: currentRoom }));
     });
 
     return () => {
       console.log('Component unmount, disconnecting socket');
       socketRef.current.disconnect();
     };
-  }, [onOpen]); // Only run this once, when the component mounts
+  }, [onOpen, dispatch]);
 
   const handleUserTyping = debounce(() => {
     console.log('User typing');
@@ -93,14 +84,19 @@ const ChatRoom = () => {
 
   const handleSendMessage = (text) => {
     console.log('Sending message');
-    const currentUser = 'testUser'; // replace with the correct user
+    const currentUser = 'testUser';
     dispatch(sendMessage({ text, roomId: currentRoom, user: currentUser }));
+    socketRef.current.emit('SEND_MESSAGE', currentRoom, {
+      text,
+      roomId: currentRoom,
+      user: currentUser,
+    });
   };
 
   const handleInputChange = (event) => {
     console.log('Input change');
     setMessageText(event.target.value);
-    dispatch(setUserTyping(true)); // start typing when text changes
+    dispatch(setUserTyping(true));
   };
 
   const handleInputSubmit = (event) => {
@@ -121,12 +117,7 @@ const ChatRoom = () => {
         <Heading as='h1' mb={4}>
           Welcome to the Chat!
         </Heading>
-        <CreateRoom
-          isOpen={isOpen}
-          onClose={onClose}
-          onOpen={onOpen}
-          room={newRoom}
-        />
+        <CreateRoom isOpen={isOpen} onClose={onClose} onOpen={onOpen} />
         {rooms.map((room) => (
           <Text key={room.id} onClick={() => handleRoomClick(room.id)}>
             {room.name}
@@ -154,7 +145,6 @@ const ChatRoom = () => {
             value={selectedRoom}
             onChange={(e) => setSelectedRoom(e.target.value)}
             placeholder='Enter room id...'
-            mr={2}
           />
           <Button type='submit' colorScheme='blue'>
             Change Room
@@ -166,4 +156,4 @@ const ChatRoom = () => {
   );
 };
 
-export default ChatRoom;
+export default ChatRooms;

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { createChatRoom, updateChatRoom } from '../../actions/chatRoomActions';
+import { createChatRoom, updateChatRoom } from '../../actions/chatActions';
 
 const ChatRoomForm = ({ existingRoom }) => {
   const [room, setRoom] = useState(existingRoom || { name: '', description: '', color: '' });

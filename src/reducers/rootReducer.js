@@ -6,7 +6,7 @@ import messageReducer from './messageReducer';
 
 // import roomReducer from './roomReducer';
 import notificationReducer from './notificationReducer';
-import chatReducer from './chatRoomReducer';
+import chatReducer from './chatRoomReducer.js';
 
 const rootReducer = combineReducers({
   messages: messageReducer,

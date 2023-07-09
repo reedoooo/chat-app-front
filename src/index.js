@@ -1,12 +1,7 @@
 import { useContext, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider, useDispatch } from 'react-redux';
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  Navigate,
-} from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { ChakraProvider } from '@chakra-ui/provider';
 import theme from './theme';
 import { Box, Flex } from '@chakra-ui/layout';
@@ -19,14 +14,14 @@ import Main from './components/Main';
 import Profile from './components/Profile/Profile';
 import Auth from './components/Authentication/Auth';
 import Register from './components/Authentication/Register';
-import ChatRoom from './components/ChatRoom/ChatRoom';
 import store from './store/index.js';
 import { UserContext, UserProvider } from './context/hooks/user';
 import { RoomContext, RoomProvider } from './context/hooks/room';
-import { loadUser, logout } from './actions/authActions';
-import { loadRooms, loadMessages, setSocket } from './actions/chatRoomActions';
+import { loadUser, logoutUser } from './actions/authActions';
+import { loadRooms, loadMessages, setSocket } from './actions/chatActions';
 import io from 'socket.io-client';
 import { Button } from '@chakra-ui/react';
+import ChatRooms from './components/ChatRoom/ChatRooms';
 
 const socket = io(process.env.REACT_APP_SOCKET || 'http://localhost:3002');
 
@@ -46,7 +41,7 @@ const RootComponent = () => {
 
   const handleLogout = () => {
     logoutUser();
-    dispatch(logout());
+    dispatch(logoutUser());
   };
 
   useEffect(() => {
@@ -75,12 +70,7 @@ const RootComponent = () => {
             <Routes>
               <Route path='/auth/*' element={<Auth addRoom={addRoom} />} />
               <Route path='/register' element={<Register rooms={rooms} />} />
-              <Route
-                path='/'
-                element={
-                  user ? <Navigate to='/rooms' /> : <Navigate to='/auth' />
-                }
-              />
+              <Route path='/' element={user ? <ChatRooms /> : <Auth />} />
               <Route
                 path='/main'
                 element={
@@ -91,45 +81,37 @@ const RootComponent = () => {
                       rooms={rooms}
                     />
                   ) : (
-                    <Navigate to='/auth' />
+                    <Auth />
                   )
                 }
               />
               <Route
+                exact
                 path='/rooms'
                 element={
                   user ? (
-                    <ChatRoom
+                    <ChatRooms
                       addRoom={addRoom}
                       removeRoom={removeRoom}
                       handleLogout={handleLogout}
                     />
                   ) : (
-                    <Navigate to='/auth' />
+                    <Auth />
                   )
                 }
               />
               <Route
                 path='/settings'
-                element={user ? <Settings /> : <Navigate to='/auth' />}
+                element={user ? <Settings /> : <Auth />}
               />
-              <Route
-                path='/rooms'
-                element={user ? <ChatRoom /> : <Navigate to='/auth' />}
-              />
+              <Route path='/rooms' element={user ? <ChatRooms /> : <Auth />} />
               <Route
                 path='/profile/*'
-                element={user ? <Profile /> : <Navigate to='/auth' />}
+                element={user ? <Profile /> : <Auth />}
               />
-              <Route
-                path='/friends'
-                element={user ? <Friends /> : <Navigate to='/auth' />}
-              />
-              <Route
-                path='/forum'
-                element={user ? <Forum /> : <Navigate to='/auth' />}
-              />
-              <Route path='/*' element={<Navigate to='/auth' />} />
+              <Route path='/friends' element={user ? <Friends /> : <Auth />} />
+              <Route path='/forum' element={user ? <Forum /> : <Auth />} />
+              <Route path='/*' element={<Auth />} />
             </Routes>
           </Flex>
         </Box>

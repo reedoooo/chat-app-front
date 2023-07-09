@@ -1,40 +1,58 @@
-import { useState, useContext } from 'react';
-import { useSelector } from 'react-redux';
+// Auth Component
+import { useState, useContext, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { UserContext, UserProvider } from '../../context/hooks/user';
+import { UserContext } from '../../context/hooks/user';
 import { loginUser, registerUser } from '../../actions/authActions';
 import Login from './Login';
 import Register from './Register';
-import {
-  Flex,
-  Button,
-  useColorModeValue,
-  Heading,
-  Text,
-} from '@chakra-ui/react';
-
+import { Flex, useColorModeValue } from '@chakra-ui/react';
+import ChatRooms from '../ChatRoom/ChatRooms';
+import { RoomContext } from '../../context/hooks/room';
 
 function Auth() {
   const navigate = useNavigate();
   const { user, setUser } = useContext(UserContext);
+  const { room, setRoom } = useContext(RoomContext);
   const socket = useSelector((state) => state.chatRoom.socket);
   const [isLoginView, setIsLoginView] = useState(true);
   const [error, setError] = useState(null);
 
-  // const [user, setUser] = useState(
-  //   Cookies.get('user') ? JSON.parse(Cookies.get('user')) : null,
-  // );
+  useEffect(() => {
+    if (socket) {
+      socket.on('login', (user) => {
+        setUser(user);
+      });
 
-  // Log the user state
-  console.log(user);
+      socket.on('user.loggedin', (room) => {
+        setRoom(room);
+      });
+
+      socket.on('register', (user) => {
+        setUser(user);
+      });
+
+      socket.on('user.registered', (room) => {
+        setRoom(room);
+      });
+      console.log(room);
+
+      return () => {
+        socket.off('login');
+        socket.off('register');
+      };
+    }
+  }, [socket, setUser]);
+
   const handleToggleView = () => {
     setIsLoginView(!isLoginView);
-    setError(null); // Reset the error message on view toggle
+    setError(null);
   };
+  const dispatch = useDispatch(); // Don't forget to import it from react-redux
 
   const handleLogin = async (credentials) => {
     try {
-      const response = await loginUser(credentials);
+      const response = await dispatch(loginUser(credentials)); // Wrap loginUser call with dispatch
       socket.emit('login', response.user);
       setUser(response.user);
       navigate('/rooms');
@@ -45,7 +63,7 @@ function Auth() {
 
   const handleRegister = async (credentials) => {
     try {
-      const response = await registerUser(credentials);
+      const response = await dispatch(registerUser(credentials)); // Wrap registerUser call with dispatch
       setUser(response.user);
       navigate('/rooms');
     } catch (error) {
@@ -56,40 +74,34 @@ function Auth() {
   const buttonColor = useColorModeValue('gray.300', 'gray.700');
   const headingColor = useColorModeValue('gray.600', 'gray.400');
 
+  if (user) {
+    return <ChatRooms />;
+  }
+
   return (
-    <UserProvider>
-      <Flex
-        direction='column'
-        justify='center'
-        align='center'
-        h='100vh'
-        bg={buttonColor}
-      >
-        {isLoginView ? (
-          <Flex direction='column' align='center' justify='center'>
-            <Heading mb={4} color={headingColor}>
-              Login
-            </Heading>
-            <Login onLogin={handleLogin} />
-            {error && <Text color='red.500'>{error}</Text>}
-            <Button variant='link' onClick={handleToggleView}>
-              Don&#39;t have an account? Register here.
-            </Button>
-          </Flex>
-        ) : (
-          <Flex direction='column' align='center' justify='center'>
-            <Heading mb={4} color={headingColor}>
-              Register
-            </Heading>
-            <Register onRegister={handleRegister} />
-            {error && <Text color='red.500'>{error}</Text>}
-            <Button variant='link' onClick={handleToggleView}>
-              Already have an account? Login here.
-            </Button>
-          </Flex>
-        )}
-      </Flex>
-    </UserProvider>
+    <Flex
+      direction='column'
+      justify='center'
+      align='center'
+      h='100vh'
+      bg={buttonColor}
+    >
+      {isLoginView ? (
+        <Login
+          handleToggleView={handleToggleView}
+          handleLogin={handleLogin}
+          error={error}
+          headingColor={headingColor}
+        />
+      ) : (
+        <Register
+          handleToggleView={handleToggleView}
+          handleRegister={handleRegister}
+          error={error}
+          headingColor={headingColor}
+        />
+      )}
+    </Flex>
   );
 }
 

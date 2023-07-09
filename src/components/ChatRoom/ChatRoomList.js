@@ -1,5 +1,5 @@
 import { useDispatch } from 'react-redux';
-import { deleteRoom } from '../../actions/chatRoomActions';
+import { deleteRoom } from '../../actions/chatActions';
 import ChatRoom from '.';
 
 const ChatRoomList = ({ rooms }) => {
